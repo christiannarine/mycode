@@ -1,0 +1,13 @@
+import time 
+from PIL import ImageGrab
+
+counter = 0
+numOfScreenshots = 0
+while (numOfScreenshots < 5) or (numOfScreenshots > 15):
+     numOfScreenshots = int(input("Enter the number of screen shots [5-15] to take:"))
+
+while counter < numOfScreenshots : #do 5-15 times
+    time.sleep(2)                  #wait 2 seconds
+    screenshot = ImageGrab.grab()  #take the screen shots
+    sccreenshot.save("/user/christiannarine/desktop/screenshot"+str(counter)+".png")
+    counter = counter + 1
