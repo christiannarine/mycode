@@ -1,0 +1,35 @@
+#import pyautogui
+#import time
+
+def main():
+    print("Welcome to the Screenshot Taker!")
+
+    while True:
+        try:
+            interval = int(input("Enter the interval in minutes between screenshots (e.g., 5): "))
+            if interval <= 0:
+                print("Interval must be a positive number.")
+            else:
+                break
+        except ValueError:
+            print("Invalid input. Please enter a valid number.")
+
+    screenshot_count = 1
+
+    print(f"Screenshots will be taken every {interval} minutes.")
+
+    while True:
+        try:
+            print(f"Taking screenshot {screenshot_count}...")
+            screenshot_filename = f"screenshot_{screenshot_count}.png"
+            pyautogui.screenshot(screenshot_filename)
+            print(f"Screenshot saved as {screenshot_filename}")
+            screenshot_count += 1
+            time.sleep(interval * 60)  # Convert minutes to seconds
+        except KeyboardInterrupt:
+            print("\nScreenshot session ended.")
+            break
+
+if __name__ == "__main__":
+    main()
+
