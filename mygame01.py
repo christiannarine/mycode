@@ -11,6 +11,7 @@ def showInstructions():
     Commands:
       go [direction]
       get [item]
+      fight [monster]
     ''')
 
 def showStatus():
@@ -35,7 +36,7 @@ rooms = {
             'Hall' : {
                   'south' : 'Kitchen',
                   'east'  : 'Dining Room',
-                  'item'  : 'key'
+                  'item'  : 'key' 'diamond',
                 },
 
             'Kitchen' : {
@@ -49,7 +50,10 @@ rooms = {
                },
             'Garden' : {
                   'north' : 'Dining Room'
-            }
+            },
+            'safeRoom' : { 
+                  'up' : 'you win'
+                  }
          }
 
 # start the player in the Hall
@@ -101,7 +105,7 @@ while True:
 
                 ## If a player enters a room with a monster
     if 'item' in rooms[currentRoom] and 'monster' in rooms[currentRoom]['item']:
-        print('A monster has got you... GAME OVER!')
+        print('You have killed the friendly monster... GAME OVER!')
         break
     ## Define how a player can win
     if currentRoom == 'Garden' and 'key' in inventory and 'potion' in inventory:
