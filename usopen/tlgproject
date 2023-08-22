@@ -1,0 +1,48 @@
+import time
+from PIL import ImageGrab
+import paramiko
+
+# Mac configuration
+mac_username = "Christian Narine"
+mac_ip = "192.168.81.161"
+mac_private_key_path = "/Users/christiannarine/.ssh/id_rsa"
+
+# iPad configuration
+ipad_username = "Christian Narine"
+ipad_ip = "192.168.81.166"
+ipad_private_key_path = "/Users/christiannarine/.ssh/id_rsa"
+
+counter = 0
+numOfScreenshots = 0
+
+while (numOfScreenshots < 5) or (numOfScreenshots > 15):
+    try:
+        numOfScreenshots = int(input("Enter the number of screenshots [5-15] to take: "))
+        if numOfScreenshots < 5 or numOfScreenshots > 15:
+            print("Please enter a number between 5 and 15.")
+    except ValueError:
+        print("Invalid input. Please enter a valid number.")
+
+# SSH connection to your Mac
+mac_key = paramiko.RSAKey(filename=mac_private_key_path)
+mac_ssh = paramiko.SSHClient()
+mac_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+mac_ssh.connect(hostname=mac_ip, username=mac_username, pkey=mac_key)
+
+while counter < numOfScreenshots:
+    time.sleep(2)
+    screenshot = ImageGrab.grab()
+    screenshot_path = f"/Users/Christiannarine/Desktop/screenshot{counter}.png"
+    screenshot.save(screenshot_path)
+    
+    # Send screenshot to iPad
+    with mac_ssh.open_sftp() as sftp:
+        sftp.put(screenshot_path, f"/home/Christiannarine/screenshot{counter}.png")
+    
+    # Delete screenshot from Mac
+    mac_ssh.exec_command(f"rm /Users/christiannarine/.ssh/id_rsa")
+    
+    counter += 1
+
+mac_ssh.close()
+print(f"{numOfScreenshots} screenshots captured and sent to iPad.")
