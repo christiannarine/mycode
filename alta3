@@ -1,0 +1,363 @@
+Lab Objective
+The objective of this lab is to introduce the concept of open Application Programing Interfaces (open APIs). The term "Open APIs" refers to any API that is generally open to the public (no/limited authentication required).
+
+An example of an Open API https://api.magicthegathering.io, an API maintained by Wizards of the Coast to make information about their card game Magic the Gathering available to enthusiasts.
+
+Documentation for their API is available via: https://docs.magicthegathering.io/
+
+In this script we'll use the requests library. Read about requests here: https://requests.readthedocs.io/en/master This library is a 3rd party library, so we'll need to use the pip module (a Python tool for installing code from pypi.org) to install it.
+
+Using this library is one of several ways to query an API. So, which one should you use? The method described in this lab is the 'newest cool' and is quite a bit easier than the older method using the urllib.request library. However, as a rule of thumb: if your code works in Python3 and does not throw a deprecation warnings, then use it!
+
+Lab Procedure
+If you haven't already, read about the documentation behind the API (https://docs.magicthegathering.io/)
+
+An API web service has an address (URI) just like a web page does. Instead of returning HTML for a web page it returns data. Open (https://api.magicthegathering.io/v1/sets) in a web browser. What is returned is a large set of JSON.
+
+Take a moment to study the structure. With some time, you should find that this is JSON Object (dictionary) with a single key, sets, that is mapped to a list. That list then contains objects (dictionaries) where each one represents a different Magic The Gathering card set.
+
+Let's stay in the habit of organizing our work. For now, make /home/student/mycode/mtg/ directory.
+
+student@bchd:~$ mkdir ~/mycode/mtg/
+
+Move to the /home/student/mycode directory.
+
+student@bchd:~$ cd ~/mycode/
+
+Install the requests library. It is possible this package is already installed on your system, as it is a popular one.
+
+student@bchd:~/mycode$ python3 -m pip install requests
+
+Create a new script we can use to harvest some Magic the Gathering card facts.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG01.py
+
+Enter the following into your new script. Notice that this lab enforces best practices:
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get("https://api.magicthegathering.io/v1/sets")
+
+    # display the methods available to our new object
+    print( dir(resp) )
+
+if __name__ == "__main__":
+    main()
+Review the code. In this script, we create a request object, resp. By running the dir() function on the object, we can reveal the attributes and methods (tools) that we can use to probe and alter that object.
+
+Save and exit with :wq
+
+Run the code, study all of the methods revealed (ignore any surrounded by underscores).
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG01.py
+
+Create a new script in which we can start using our request methods to get some usable data.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG02.py
+
+Enter the following into your new script:
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}sets")   # this "f" string reads: API + "sets"
+                                        # OR, https://api.magicthegathering.io/v1/sets
+
+    # display the methods available to our new object
+    print( dir(resp) )
+
+if __name__ == "__main__":
+    main()
+This iteration doesn't do much other than apply a best practice technique of identifying our API as a global outside of our function main(). We can do this because the "base" (defined by API) won't be changing during our HTTP API look-ups.
+
+Save and exit with :wq
+
+Go ahead and run your script. Once again it should "just" display the attributes of our response object.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG02.py
+
+Create another script.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG03.py
+
+Create the following script. With this iteration, we will strip the JSON attached to the 200 HTTP response that will be returned to the HTTP GET request we send the API. The results will be overwhelming, but we'll handle that next.
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}sets")   # this "f" string reads: API + "sets"
+                                        # OR, https://api.magicthegathering.io/v1/sets
+
+    # the .json() method will dump a JSON string into Pythonic data structures. COOL!
+    # This is much easier than using the urllib.request library
+    print( resp.json() )
+
+if __name__ == "__main__":
+    main()
+Save and exit with :wq
+
+Run your script. Prepare to get a LOT of data on the screen.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG03.py
+
+Okay, that was too much. What we need to do is get eyes on the "keys" available. If you already looked at the data set in your browser, you might have found there is only ONE key, sets. However, we can have Python tell us that.
+
+Create a new script.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG04.py
+
+Create the following script that will dump the "keys" within the JSON returned by the API to the screen.
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}sets")   # this "f" string reads: API + "sets"
+                                        # OR, https://api.magicthegathering.io/v1/sets
+
+    # the .json() method will dump a JSON string into Pythonic data structures. COOL!
+    # This is much easier than using the urllib.request library
+    print( resp.json().keys() )
+
+if __name__ == "__main__":
+    main()
+Save and exit with :wq
+
+Run the new script. The ONLY response will be a list-like object with the string sets. This is the only key.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG04.py
+
+Create a new script.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG05.py
+
+Now that we know a key, we can perform a .get() operation on that key, sets. sets is mapped to a list of dictionaries, so we can perform a for-loop across that data to make it more viewable.
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}sets")   # this "f" string reads: API + "sets"
+                                        # OR, https://api.magicthegathering.io/v1/sets
+
+    # the .json() method will dump a JSON string into Pythonic data structures. COOL!
+    # This is much easier than using the urllib.request library
+    cardsets = resp.json().get("sets")
+
+    for cardset in cardsets:  # loop across ALL of the sets of MTG cards (they are stored as dict objects)
+        print(cardset)  # each dictionary represents a set of cards
+
+if __name__ == "__main__":
+    main()
+Save and exit with :wq
+
+Run the new script. It should produce a list of dictionaries that is fairly easy to read.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG05.py
+
+Create a new script.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG06.py
+
+In this new script, let's direct our data from standard output (the screen) into a file!
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}sets")   # this "f" string reads: API + "sets"
+                                        # OR, https://api.magicthegathering.io/v1/sets
+
+    # the .json() method will dump a JSON string into Pythonic data structures. COOL!
+    # This is much easier than using the urllib.request library
+    cardsets = resp.json().get("sets")
+    # open a file we write our data into
+    with open("mtgsets.index", "w") as mtgfile:
+        for cardset in cardsets:  # loop across ALL of the sets of MTG cards (they are stored as dict objects)
+            print(f"{cardset.get('name')} -- {cardset.get('code')}", file=mtgfile)  # write the data "we want"
+                                                                                    # into mtgfile
+
+if __name__ == "__main__":
+    main()
+Save and exit with :wq
+
+Run the new script.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG06.py
+
+Check out the file we just created, mtgsets.index
+
+student@bchd:~/mycode$ less ~/mycode/mtgsets.index
+
+Scroll up and down with arrow keys or page up and down. Press q to quit.
+
+Create a new script.
+
+student@bchd:~/mycode$ vim ~/mycode/mtg/apiMTG07.py
+
+Create the following script, which prompts a user for a set code from the file mtgsets.index. It then uses a NEW API, /cards and inserts the value entered by the user following the value ?set= within this API. The result should be a list of cards from that set. Note: For a better explanation of how the API works, see the documentation on the Magic the Gathering API. https://docs.magicthegathering.io/
+
+#!/usr/bin/env python3
+"""Alta3 Research | Author: RZFeeser@alta3.com
+
+   Description:
+   A script to interact with an "open" api,
+   https://api.magicthegathering.io/v1/
+
+   documentation for the API is available via,
+   https://docs.magicthegathering.io/"""
+
+# imports always go at the top of your code
+import requests
+
+# Define our "base" API
+API = "https://api.magicthegathering.io/v1/" # this will never change regardless of the lookup we perform
+
+def main():
+    """Run time code"""
+
+    setcode = input("What is the code of the set you are trying to lookup (see mtgsets.index for a list of codes)? ").lower()   # collect user input for MTG card set to lookup
+
+    # create resp, which is our request object
+    resp = requests.get(f"{API}cards?set={setcode}")   # this "f" string reads: API + "cards/" + setcode
+
+    # the .json() method will dump a JSON string into Pythonic data structures. COOL!
+    # This is much easier than using the urllib.request library
+    cards = resp.json()
+
+    print(cards)
+
+if __name__ == "__main__":
+    main()
+Save and exit with :wq
+
+Run the script. Try entering 4ed to search for all cards within the 4th edition set.
+
+student@bchd:~/mycode$ python3 ~/mycode/mtg/apiMTG07.py
+
+Great job! If you'd like to keep exploring how APIs work, try the challenges below.
+
+CHALLENGE 01 (OPTIONAL) - The last script will return a bunch of card data that is impossible to read.
+
+Write the data into a file
+Ensure the data you write into the file is in a format that is EASY for a human to read!
+Give the file a name that somehow relates to the files contents (for example, 4DE_cards.set might be a good name for cards returned by the lookup 4de)
+CHALLENGE 02 (OPTIONAL) - Find a different API described on https://docs.magicthegathering.io/ and write a script to interact with it. Examples include /types, /supertypes, and /formats.
+
+CHALLENGE 03 (OPTIONAL) - Figure out the Magic The Gathering python SDK. Generally, all SDKs are wrappers that let developers abstract control of a target system. In this case, the MTG SDK allows devs to abstract control of the RESTful API. The SDK is described in better detail here: https://github.com/MagicTheGathering/mtg-sdk-python
+
+To install the SDK use, python3 -m pip install mtgsdk
+CHALLENGE 04 (OPTIONAL) - Find a completely different API to script around. Lots of API sources are available on the internet. Choose one of the following and write a script that uses data returned by the API.
+
+https://fantasy.premierleague.com/api/bootstrap-static/
+http://api.open-notify.org/astros.json
+https://api.nasa.gov/
+https://docs.spacexdata.com/
+https://www.census.gov/data/developers/guidance/api-user-guide.What_is_the_API.html
+https://www.alphavantage.co/documentation/
+https://magicthegathering.io/
+https://developer.marvel.com/
+https://baconipsum.com/json-api/
+If you're tracking your code in an SCM, issue the following commands:
+
+cd ~/mycode
+git add *
+git commit -m "Python and APIs"
+git push origin HEAD
