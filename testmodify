@@ -1,0 +1,27 @@
+import time
+from PIL import ImageGrab
+import os
+
+counter = 0
+numOfScreenshots = 0
+
+while (numOfScreenshots < 5) or (numOfScreenshots > 15):
+    try:
+        numOfScreenshots = int(input("Enter the number of screenshots [5-15] to take: "))
+        if numOfScreenshots < 5 or numOfScreenshots > 15:
+            print("Please enter a number between 5 and 15.")
+    except ValueError:
+        print("Invalid input. Please enter a valid number.")
+
+screenshot_dir = 'screenshots'
+if not os.path.exists(screenshot_dir):
+    os.makedirs(screenshot_dir)
+
+while counter < numOfScreenshots:
+    time.sleep(2)
+    screenshot = ImageGrab.grab()
+    screenshot_path = os.path.join(screenshot_dir, f"screenshot{counter}.png")
+    screenshot.save(screenshot_path)
+    counter += 1
+
+print(f"{numOfScreenshots} screenshots captured and saved.")
