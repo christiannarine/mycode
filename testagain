@@ -1,0 +1,35 @@
+import os
+import time
+from flask import Flask, send_file
+
+app = Flask(__name__)
+
+screenshot_dir = 'screenshots'
+if not os.path.exists(screenshot_dir):
+    os.makedirs(screenshot_dir)
+
+def capture_screenshot(counter):
+    screenshot_path = os.path.join(screenshot_dir, f"screenshot{counter}.png")
+    os.system(f"screencapture -x {screenshot_path}")  # Capture screenshot using macOS screencapture command
+
+@app.route('/')
+def show_screenshots():
+    screenshots = os.listdir(screenshot_dir)
+    screenshot_links = [f'<a href="/screenshots/{filename}">{filename}</a>' for filename in screenshots]
+    return f"<!DOCTYPE html><html><body>{'<br>'.join(screenshot_links)}</body></html>"
+
+@app.route('/screenshots/<filename>')
+def get_screenshot(filename):
+    screenshot_path = os.path.join(screenshot_dir, filename)
+    return send_file(screenshot_path, mimetype='image/png')
+
+if __name__ == '__main__':
+    counter = 0
+    numOfScreenshots = 5  # You can adjust the number of screenshots here
+
+    while counter < numOfScreenshots:
+        capture_screenshot(counter)
+        counter += 1
+        time.sleep(2)  # Delay between screenshots
+
+    app.run(host='0.0.0.0', port=5000)
